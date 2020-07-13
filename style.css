@@ -1,0 +1,16 @@
+ .container {
+    height: 650px;
+    width: 650px;
+    margin: 30px auto;
+}
+.cell {
+    height: 55px;
+    width: 55px;
+    float: left; 
+    border: 3px rgb(243, 131, 57)solid; 
+    background-color: cadetblue;
+} 
+.borderClick {
+    border: 3px #67f028 solid; 
+
+}

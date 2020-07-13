@@ -1,198 +1,238 @@
-//создаем игровое поле
-
-let canvas = document.createElement('canvas');
-let cells = [];
-let cellSize = 35;
-let ctx = canvas.getContext('2d');
-let field = new game();
-
-let newGame = document.querySelector('#newGame');
-let mixItems = [];
-
-let mouseTarget; // экранный объект, находящийся в данный момент под мышью или перетаскиваемый
-let dragStarted;	// указывает, находимся ли мы в данный момент в операции перетаскивания
-let offset;
-let update = true;
-
-function drawField() {
-  let canvas = document.querySelector('canvas');
-  let ctx = canvas.getContext('2d');
-  //поле
-  ctx.fillStyle = 'green';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  let canvasWidth = 525;
-  let canvasHeigth = 525;
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeigth;
-  let cellWidth = 35;
-  let cellHeight = 35;
-  let cellsInRow = Math.floor(canvasWidth / cellWidth);
-  let cellsInColomn = Math.floor(canvasHeigth / cellHeigth);
-  for (var top = 0; top < canvasWidth; top += cellWidth) {
-    for (var left = 0; left < canvasHeight; left += cellHeight) {
-      var cell = {
-        top: top,
-        left: left,
-        solid: false,
-        // аргумент говорит о том каким цветом закрашивать клетку. Предполагается что у клетки может быть 2 цвета. 
-        fill: function (solid) {
-          // запоминаем состояние закрашенности клетки
-          this.solid = solid
-          context.fillStyle = solid ? '#000' : '#fff';
-          context.fillRect(this.top, this.left, cellWidth,cellHeight);
-        },
-        drawBorder: function () {
-          context.beginPath();
-          context.strokeStyle = 'yellow';
-          context.moveTo(this.top - 0.5, this.left - 0.5)
-          context.lineTo(this.top - 0.5, this.left + cellWidth - 0.5)
-          context.lineTo(this.top + cellHeight - 0.5, this.left + cellWidth - 0.5)
-          context.lineTo(this.top + cellHeight - 0.5, this.left - 0.5)
-          context.lineTo(this.top - 0.5, this.left - 0.5)
-          context.stroke()
-        },
-        getTop: function () {
-          return this.top
-        },
-        getLeft: function () {
-          return this.left
-        }
-      }
-      cells.push(cell)
-      cell.fill(true)
-      cell.drawBorder()
-    }
-  }
-  
-  function getCellByPosition(top, left) {
-    var topIndex = Math.floor(top / cellHeight) * cellsInRow
-    var leftIndex = Math.floor(left / cellWidth)
-    return cells[topIndex + leftIndex]
-  }
-  
-  // Взаимодействие
-  var filling = false
-  
-  function fillCellAtPositionIfNeeded(x, y, fillingMode) {
-    var cellUnderCursor = getCellByPosition(x, y)
-    if (cellUnderCursor.solid !== fillingMode) {
-      cellUnderCursor.fill(fillingMode)
-    }
-    cell.drawBorder()
-  }
-}
-
-function init() {
-	// создание уровня и наведение его на холст
-	canvas = document.getElementById('canvas');
-  stage = new createjs.Stage(canvas);
-
-  // включить сенсорное взаимодействие
-  createjs.Touch.enable(stage);
-  
-  // включить наведение курсора мыши на фигуру
-	stage.enableMouseOver(10);
-  stage.mouseMoveOutside = true; // отслеживание мыши, даже когда она покидает холст
-  
-
-  //массив фигур для игрового поля (круг, треугольник, прямоугольник, звездочка)
-  let figures = ['circle', 'triangle', 'square', 'star'];
-
-  // круг
-	let circle = new Image();
-	circle.src = 'img/circle.png';
-  circle.onload = handleImageLoad;
-
-  // треугольник
-	let triangle = new Image();
-	triangle.src = 'img/triangle.png';
-  triangle.onload = handleImageLoad;
-
-  // квадрат
-  let square = new Image();
-	square.src = 'img/square.png';
-  square.onload = handleImageLoad;
-
-  // звездочка
-  let star = new Image();
-	star.src = 'img/star.png';
-  star.onload = handleImageLoad;
-
-}
-
-//функции для отрисовки фигур на игровом поле
-function drawCIR(x,y) {
-  context.drawImage(circle,x,y);
-}
-
-function drawTRIA(x,y) {
-  context.drawImage(triangle,x,y);
-}
-
-function drawSQU(x,y) {
-  context.drawImage(square,x,y);
-}
-
-function drawSTAR(x,y) {
-  context.drawImage(star,x,y);
-}
-
-
-function stop() {
-  createjs.Ticker.removeEventListener('tick', tick);
-}
-
-function handleImageLoad(event) {
-	let image = event.target;
-	let bitmap;
-	let container = new createjs.Container();
-  stage.addChild(container);
-}
-  // загрузить изображение фигур:
 function drawBoard() {
-    let container = document.querySelector('div.canvas');
-    let Square;
-    let flag = true;
-  for (let i = 0; i < 15; i++) {
-    push(figures[Math.floor(Math.random()*figures.length)]);
-      for (let j = 0; j <= 15; j++) {
-          Square = document.createElement('div.canvas');
-              Square.className = 'Square blue';
-      }
+  let container = document.querySelector(".container");
+  let field;
+  for (let i = 0; i < 100; i++) {
+    field = document.createElement("div");
+    field.classList.add("cell");
+    field.classList.add("cell" + i);
+    container.appendChild(field);
   }
 }
 
-    
-// использование параметра ON- выполняет в области действия кнопки
-bitmap.on("mousedown", function (evt) {
-	this.parent.addChild(this);
-	this.offset = {x: this.x - evt.stageX, y: this.y - evt.stageY};
-});
-    
-// событие отправляется, когда мышь перемещается на целевой объект, пока мышь не будет отпущена
-bitmap.on("pressmove", function (evt) {
-	this.x = evt.stageX + this.offset.x;
-	this.y = evt.stageY + this.offset.y;
-	// этот этап обновляется на следующем тике
-	update = true;
-});
-    
-// опрокидывание
-bitmap.on("rollover", function (evt) {
-	this.scale = this.originalScale * 1.2;
-	update = true;
-});
-    
-// выкатка
-bitmap.on("rollout", function (evt) {
-	this.scale = this.originalScale;
-	update = true;
-});
-
-examples.hideDistractor();
-createjs.Ticker.addEventListener("tick", tick);
+drawBoard();
 
 
+function randomFigure() {
+
+  for (i = 0; i < 100; i++) {
+    let figureNumber = Math.floor(Math.random() * Math.floor(4));
+
+    switch (figureNumber) {
+      case 0:
+        document.querySelector(".cell" + i).setAttribute('style','background-image: url(img/circle.png); background-repeat: no-repeat; background-size: cover;');
+        break;
+      case 1:
+        document.querySelector(".cell" + i).setAttribute('style','background-image: url(img/square.png); background-repeat: no-repeat; background-size: cover;');
+        break;
+      case 2:
+        document.querySelector(".cell" + i).setAttribute('style','background-image: url(img/star.png); background-repeat: no-repeat; background-size: cover;');
+        break;
+      case 3:
+        document.querySelector(".cell" + i).setAttribute('style','background-image: url(img/triangle.png); background-repeat: no-repeat; background-size: cover;');
+        break;
+    }
+  }
+}
+
+randomFigure();
+
+let cells = document.querySelectorAll(".cell");
+for (let cell of cells) {
+	cell.addEventListener("click", function (e) {
+    e.target.classList.toggle("borderClick");
+  });
+}
+/*
+// обрабатываем нажатие по клавиатуре
+function keyboardEvent(e) {
+  switch(e.keyCode) {
+      case 5: key('up');    break;
+      case 6: key('down');  break;
+      case 7: key('left');  break;
+      case 8: key('right'); break;
+  }
+  checkWin();
+}
+
+/*$(function(){
+  jQuery.fn.swap = function(b) {
+    b = jQuery(b)[0];
+    var a = this[0],
+        a2 = a.cloneNode(true),
+        b2 = b.cloneNode(true),
+        stack = this;
+
+    a.parentNode.replaceChild(b2, a);
+    b.parentNode.replaceChild(a2, b);
+
+    stack[0] = a2;
+    return this.pushStack( stack );
+};
+
+$('button').on('click', function(){
+  $('.left').swap('.right');
+});
+  });
+/*window.onload = function(){
+  let c1 = document.getElementById("cell1");
+  let c2 = document.getElementById("cell2");
+  c1.parentNode.insertBefore(c2, c1);
+}
+/* Клик Мыши по клетке
+choose cell
+field.onclick = function(event) {
+  if (event.target.tagName != "cell") return;
+
+  if (event.ctrlKey || event.metaKey) {
+    toggleSelect(event.target);
+  } else {
+    singleSelect(event.target);
+  }
+
+}
+
+// предотвращает ненужное выделение элементов поля при клике
+field.onmousedown = function() {
+  return false;
+};
+
+function toggleSelect(cell) {
+  cell.classList.toggle('selected');
+}
+
+function singleSelect(cell) {
+  let selected = field.querySelectorAll('.selected');
+  for(let elem of selected) {
+    elem.classList.remove('selected');
+  }
+  cell.classList.add('selected');
+}
+
+
+
+// обрабатываем сдвиг одной клетки по направлениям up/down/left/right
+function key( type ) {
+  for(let a = 1; a <= 10; a++)
+      for(let b = 1; b <= 9; b++) {
+          switch( type ) {
+              case 'up':
+                  let from = 'x'+a+'y'+(b+1);
+                  let to   = 'x'+a+'y'+b;
+                  break;
+              case 'down':
+                  let from = 'x'+a+'y'+(10-b);
+                  let to   = 'x'+a+'y'+(11-b);
+                  break;
+              case 'left':
+                  let from = 'x'+(b+1)+'y'+a;
+                  let to   = 'x'+b+'y'+a;
+                  break;
+              case 'right':
+                  let from = 'x'+(10-b)+'y'+a;
+                  let to   = 'x'+(11-b)+'y'+a;
+                  break;
+          }
+          if( !$('.'+to).length ) {$('.'+from).removeClass(from).addClass(to);return}
+      }
+}
+
+if (i & i+1 & i-1) = ("cell" + i) of case1 each or case2 each or case3 each or case4 each => delete & score + 10;
+
+//общий счет в игре
+let score = 0;
+// создаем игровое поле 10 на 10 клеток(10 строк и 10 столбиков)
+/* function drawBoard() {
+    let container = document.querySelector("div.container");
+    let field;
+    let cell = true;
+    for (let i = 0; i <= 9; i++)
+    { for (let j = 0; j <= 9; i++)
+        { 
+          if (j == 0)
+            cell = !cell;
+            field = document.createElement("div");
+            if (cell)
+            field.className = "field goal";
+            else
+            field.className = "field goal";
+            container.appendChild(field);
+            cell = !cell;
+          }
+          
+        }
+       
+      }
+
+drawBoard();  */
+// сщздаем игровое поле с использованием массива (по его длине получаем строку дивов в контейнере)
+/*  let chessWrap = document.querySelector(".container");
+
+    let i = 0,
+      count = 0;
+
+      let field = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]; 
+
+    while (count < field.length) {
+      let item = document.createElement("div");
+      chessWrap.appendChild(item);
+      item.classList.add("cell");
+
+      i += ((i + 2) % 9) ? 1 : 2;
+      count++;
+    }
+
+class cell {
+  constructor(classCell, classFigures) {
+    this.classCell = classCell;
+    this.classFigures = function Figures() {
+      this.figures = ["circle", "triangle", "square", "star"];
+      this.add = function getRandomInt(){
+          this.Figures.push(figures[Math.floor(Math.random()*figures.length)]);}};
+  }
+}
+
+/*массив фигур для игрового поля (круг, треугольник, прямоугольник, звездочка)
+function Figures() {
+  this.figures = ["circle", "triangle", "square", "star"];
+  this.add = function getRandomInt(){
+      this.figures.push(figures[Math.floor(Math.random()*figures.length)]);}}*/
+
+// круг
+/*  let circle = new Image();
+  circle.src = 'img/circle.png';
+circle.onload = handleImageLoad;
+
+// треугольник
+  let triangle = new Image();
+  triangle.src = 'img/triangle.png';
+triangle.onload = handleImageLoad;
+
+// квадрат
+let square = new Image();
+  square.src = 'img/square.png';
+square.onload = handleImageLoad;
+
+// звездочка
+let star = new Image();
+  star.src = 'img/star.png';
+star.onload = handleImageLoad;
+
+// появление в массиве клеток поля случайных фигур из массива фигур
+/* Рандомная функция: function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; } */
+/*function getRandomInt(){
+for (i = 0; i <= field.length; i++) {
+  cell.push(figures[Math.floor(Math.random()*figures.length)]);}
+let item = document.querySelector("figures");
+chessWrap.appendChild(item);
+item.classList.add("figures");}*/
+//ЭТО НЕПРАВИЛЬНО. ПОКА НЕ МОГУ ПОНЯТЬ
+
+// включить сенсорное взаимодействие
+/* createjs.Touch.enable(stage);
+  
+// включить наведение курсора мыши на фигуру
+stage.enableMouseOver(10);
+stage.mouseMoveOutside = true; // отслеживание мыши, даже когда она покидает холст
 
 //цикл игры, который постоянно обновляет и отображает игру. 
 let lastTime;
@@ -205,79 +245,5 @@ function main() {
 
   lastTime = now;
   requestAnimFrame(main);
-};
-
-
-function tick(event) {
-	// этап отображается повторно, когда обработчик событий указывает, что произошло изменение
-	if (update) {
-		update = false; // only update once
-		stage.update(event);
-	}
 }
-
-
-
-//размер ячейки
-let box = 35;
-
-//общий счет в игре
-let score = 0;
-
-
-function move(data) {
-  empty = mixItems.indexOf(225);
-    switch(e.keyCode)
-    {
-        case '1': //Влево
-        keyLeft();
-        break;
- 
-        case '2': //Вправо
-        keyRight();
-        break;
- 
-        case '3': //Вверх
-        keyUp();
-        break;
- 
-        case '4': //Вниз
-        keyDown();
-        break;
-    }
-}
-
-function keyDown() {
-  if (empty < 15) return;
-  mixItems[empty] = mixItems[empty - 15];
-  mixItems[empty - 15] = 225;
-  getScore();
-}
-
-function keyUp() {
-  if (empty > 15) return;
-  mixItems[empty] = mixItems[empty + 15];
-  mixItems[empty + 15] = 225;
-  getScore();
-}
-
-function keyLeft() {
-  if ((empty % 15) == 14) return;
-  mixItems[empty] = mixItems[empty + 1];
-  mixItems[empty + 1] = 225;
-  getScore();
-}
- 
-function keyRight() {
-  if (empty % 15 == 0) return;
-  mixItems[empty] = mixItems[empty - 1];
-  mixItems[empty - 1] = 225;
-  getScore();
-}
-
-function Resize()
-{
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-
+*/
